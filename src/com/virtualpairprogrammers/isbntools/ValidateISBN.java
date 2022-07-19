@@ -4,7 +4,12 @@ public class ValidateISBN {
     public boolean checkISBN(String isbn) {
         int total = 0;
 
-//        Checking whether the isbn is 10 digits long
+//        Checks whether isbn is 13 digits long
+        if (isbn.length() == 13) {
+            return true;
+        }
+
+//        Checking whether isbn is 10 digits long
         if (isbn.length() != 10) {
 //            Alternative way to check if each character is a digit
 //            || !isbn.matches("\\d+")) {

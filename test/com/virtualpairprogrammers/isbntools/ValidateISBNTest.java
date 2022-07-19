@@ -9,7 +9,7 @@ import org.junit.Test;
 public class ValidateISBNTest {
 
     @Test
-    public void checkValidISBN() {
+    public void checkValid10DigitISBN() {
         ValidateISBN validator = new ValidateISBN();
         boolean result =  validator.checkISBN("0140449116");
         assertTrue("first value", result);
@@ -18,14 +18,23 @@ public class ValidateISBNTest {
     }
 
     @Test
-    public void ISBNNumbersEndingInXAreValid() {
+    public void checkValid13DigitISBN() {
+        ValidateISBN validator = new ValidateISBN();
+        boolean result =  validator.checkISBN("9781853260087");
+        assertTrue("first value", result);
+        result =  validator.checkISBN("9781853267338");
+        assertTrue("second value",  result);
+    }
+
+    @Test
+    public void TenDigitISBNNumbersEndingInXAreValid() {
         ValidateISBN validator = new ValidateISBN();
         boolean result =  validator.checkISBN("012000030X");
         assertTrue(result);
     }
 
     @Test
-    public void checkInvalidISBN() {
+    public void checkInvalid10DigitISBN() {
         ValidateISBN validator = new ValidateISBN();
         boolean result =  validator.checkISBN("0140449117");
         assertFalse(result);
@@ -41,5 +50,6 @@ public class ValidateISBNTest {
     public void charactersNotAllowed() {
         ValidateISBN validator = new ValidateISBN();
         validator.checkISBN("helloworld");
+        validator.checkISBN("helloworldman");
     }
 }
