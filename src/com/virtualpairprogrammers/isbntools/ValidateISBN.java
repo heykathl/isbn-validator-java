@@ -8,24 +8,16 @@ public class ValidateISBN {
     public static final int LONG_ISBN_MULTIPLIER = 10;
 
     public boolean checkISBN(String isbn) {
-//        Checks whether isbn is 13 digits long
+//        Checks whether isbn is 10 or 13 digits long
         if (isbn.length() == LONG_ISBN) {
-            return isValid13ISBN(isbn);
-
-        } else {
-
-//          Checking whether isbn is 10 digits long
-            if (isbn.length() != SHORT_ISBN) {
-//            Alternative way to check if each character is a digit
-//            || !isbn.matches("\\d+")) {
-                throw new NumberFormatException("Error - invalid number");
-            }
-            ;
-            return isValid10ISBN(isbn);
+            return isValidLongISBN(isbn);
+        } else if (isbn.length() == SHORT_ISBN) {
+            return isValidShortISBN(isbn);
         }
+        throw new NumberFormatException("Error - ISBN must either be 10 or 13 digits long");
     }
 
-    private boolean isValid10ISBN(String isbn) {
+    private boolean isValidShortISBN(String isbn) {
         int total = 0;
 //        Checking that each digit is a number
         for (int i = 0; i < SHORT_ISBN; i++) {
@@ -41,14 +33,10 @@ public class ValidateISBN {
             }
         }
 //        Part of the isbn validation method to divide the total by 11
-        if (total % SHORT_ISBN_MULTIPLIER == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (total % SHORT_ISBN_MULTIPLIER == 0);
     }
 
-    private boolean isValid13ISBN(String isbn) {
+    private boolean isValidLongISBN(String isbn) {
         int total = 0;
 //          Multiply second digit by 1 and every other by 3
         for (int i = 0; i < LONG_ISBN; i++) {
@@ -59,10 +47,6 @@ public class ValidateISBN {
             }
         }
 //        Part of the isbn validation method to divide the total by 10
-        if (total % LONG_ISBN_MULTIPLIER == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (total % LONG_ISBN_MULTIPLIER == 0);
     }
 }
