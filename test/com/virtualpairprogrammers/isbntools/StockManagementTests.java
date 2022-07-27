@@ -11,7 +11,7 @@ public class StockManagementTests {
     public void testGetCorrectLocatorCode() {
 
         // Creating a test stub as there is dependency on an external service
-        ExternalISBNDataService testService = new ExternalISBNDataService() {
+        ExternalISBNDataService testWebService = new ExternalISBNDataService() {
             @Override
             // Inject this stub into our class to ensure our business logic works
             public Book lookup(String isbn) {
@@ -19,8 +19,17 @@ public class StockManagementTests {
             }
         };
 
+        ExternalISBNDataService testDatabaseService = new ExternalISBNDataService() {
+            @Override
+            public Book lookup(String isbn) {
+                return null;
+            }
+        };
+
+
         StockManager stockManager = new StockManager();
-        stockManager.setService(testService);
+        stockManager.setWebService(testWebService);
+        stockManager.setDatabaseServicee(testDatabaseService);
         String isbn = "0140177396";
         String locatorCode = stockManager.getLocatorCode(isbn);
         assertEquals("7396J4", locatorCode);
