@@ -11,34 +11,22 @@ public class StockManagementTests {
 
     @Test
     public void testGetCorrectLocatorCode() {
+        ExternalISBNDataService testWebService = mock(ExternalISBNDataService.class);
+        when(testWebService.lookup(anyString())).thenReturn(new Book("0140177396", "Title", "Author"));
 
-        // Creating a test stub as there is dependency on an external service
-        ExternalISBNDataService testWebService = new ExternalISBNDataService() {
-            @Override
-            // Inject this stub into our class to ensure our business logic works
-            public Book lookup(String isbn) {
-                return new Book(isbn, "Of Mice And Men", "J. Steinbeck");
-            }
-        };
-
-        ExternalISBNDataService testDatabaseService = new ExternalISBNDataService() {
-            @Override
-            public Book lookup(String isbn) {
-                return null;
-            }
-        };
-
+        ExternalISBNDataService testDatabaseService = mock(ExternalISBNDataService.class);
+        when(testDatabaseService.lookup(anyString())).thenReturn(null);
 
         StockManager stockManager = new StockManager();
         stockManager.setWebService(testWebService);
-        stockManager.setDatabaseServicee(testDatabaseService);
+        stockManager.setDatabaseService(testDatabaseService);
 
         String isbn = "0140177396";
         String locatorCode = stockManager.getLocatorCode(isbn);
-        assertEquals("7396J4", locatorCode);
+        assertEquals("7396A1", locatorCode);
     }
 
-    // Create Mock, similar to stub but can find out if methods were called
+    // Create Mock, similar to stub but can find out if methods were called, instead of what the returned values are
     @Test
     public void databaseUsedIfDataPresent() {
         ExternalISBNDataService databaseService = mock(ExternalISBNDataService.class);
@@ -48,13 +36,16 @@ public class StockManagementTests {
 
         StockManager stockManager = new StockManager();
         stockManager.setWebService(webService);
-        stockManager.setDatabaseServicee(databaseService);
+        stockManager.setDatabaseService(databaseService);
 
         String isbn = "0140177396";
         String locatorCode = stockManager.getLocatorCode(isbn);
 
         verify(databaseService, times(1)).lookup("0140177396");
+        // Alternative: verify(databaseService).lookup("0140177396");
+
         verify(webService, times(0)).lookup(anyString());
+        // Alternative: verify(webService, never()).lookup(anyString());
     }
     @Test
     public void webServiceUsedIfDataNotPresentInDatabase() {
@@ -66,13 +57,13 @@ public class StockManagementTests {
 
         StockManager stockManager = new StockManager();
         stockManager.setWebService(webService);
-        stockManager.setDatabaseServicee(databaseService);
+        stockManager.setDatabaseService(databaseService);
 
         String isbn = "0140177396";
         String locatorCode = stockManager.getLocatorCode(isbn);
 
-        verify(databaseService, times(1)).lookup("0140177396");
-        verify(webService, times(1)).lookup("0140177396");
+        verify(databaseService).lookup("0140177396");
+        verify(webService).lookup("0140177396");
     }
 
 }

@@ -9,7 +9,7 @@ public class StockManager {
         this.webService = webService;
     }
 
-    public void setDatabaseServicee(ExternalISBNDataService databaseService) {
+    public void setDatabaseService(ExternalISBNDataService databaseService) {
         this.databaseService = databaseService;
     }
 
