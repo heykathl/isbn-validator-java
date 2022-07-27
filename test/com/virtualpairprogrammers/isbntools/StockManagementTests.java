@@ -3,25 +3,37 @@ package com.virtualpairprogrammers.isbntools;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
 public class StockManagementTests {
 
-    @Test
-    public void testGetCorrectLocatorCode() {
-        ExternalISBNDataService testWebService = mock(ExternalISBNDataService.class);
-        when(testWebService.lookup(anyString())).thenReturn(new Book("0140177396", "Title", "Author"));
+    ExternalISBNDataService testWebService;
+    StockManager stockManager;
+    ExternalISBNDataService testDatabaseService;
+    String isbn;
 
-        ExternalISBNDataService testDatabaseService = mock(ExternalISBNDataService.class);
-        when(testDatabaseService.lookup(anyString())).thenReturn(null);
+    @Before
+    public void setup() {
+        testWebService = mock(ExternalISBNDataService.class);
+        testDatabaseService = mock(ExternalISBNDataService.class);
 
-        StockManager stockManager = new StockManager();
+        stockManager = new StockManager();
+
         stockManager.setWebService(testWebService);
         stockManager.setDatabaseService(testDatabaseService);
 
-        String isbn = "0140177396";
+        isbn = "0140177396";
+
+    }
+
+    @Test
+    public void testGetCorrectLocatorCode() {
+        when(testWebService.lookup(anyString())).thenReturn(new Book(isbn, "Title", "Author"));
+        when(testDatabaseService.lookup(anyString())).thenReturn(null);
+
         String locatorCode = stockManager.getLocatorCode(isbn);
         assertEquals("7396A1", locatorCode);
     }
@@ -29,41 +41,26 @@ public class StockManagementTests {
     // Create Mock, similar to stub but can find out if methods were called, instead of what the returned values are
     @Test
     public void databaseUsedIfDataPresent() {
-        ExternalISBNDataService databaseService = mock(ExternalISBNDataService.class);
-        ExternalISBNDataService webService = mock(ExternalISBNDataService.class);
 
-        when(databaseService.lookup("0140177396")).thenReturn(new Book("0140177396", "Title", "Author"));
+        when(testDatabaseService.lookup("0140177396")).thenReturn(new Book(isbn, "Title", "Author"));
 
-        StockManager stockManager = new StockManager();
-        stockManager.setWebService(webService);
-        stockManager.setDatabaseService(databaseService);
+        stockManager.getLocatorCode(isbn);
 
-        String isbn = "0140177396";
-        String locatorCode = stockManager.getLocatorCode(isbn);
-
-        verify(databaseService, times(1)).lookup("0140177396");
+        verify(testDatabaseService, times(1)).lookup(isbn);
         // Alternative: verify(databaseService).lookup("0140177396");
 
-        verify(webService, times(0)).lookup(anyString());
+        verify(testWebService, times(0)).lookup(anyString());
         // Alternative: verify(webService, never()).lookup(anyString());
     }
     @Test
     public void webServiceUsedIfDataNotPresentInDatabase() {
-        ExternalISBNDataService databaseService = mock(ExternalISBNDataService.class);
-        ExternalISBNDataService webService = mock(ExternalISBNDataService.class);
+        when(testDatabaseService.lookup("0140177396")).thenReturn(null);
+        when(testWebService.lookup("0140177396")).thenReturn(new Book("0140177396", "Title", "Author"));
 
-        when(databaseService.lookup("0140177396")).thenReturn(null);
-        when(webService.lookup("0140177396")).thenReturn(new Book("0140177396", "Title", "Author"));
+        stockManager.getLocatorCode(isbn);
 
-        StockManager stockManager = new StockManager();
-        stockManager.setWebService(webService);
-        stockManager.setDatabaseService(databaseService);
-
-        String isbn = "0140177396";
-        String locatorCode = stockManager.getLocatorCode(isbn);
-
-        verify(databaseService).lookup("0140177396");
-        verify(webService).lookup("0140177396");
+        verify(testDatabaseService).lookup("0140177396");
+        verify(testWebService).lookup("0140177396");
     }
 
 }
